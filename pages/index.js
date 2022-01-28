@@ -29,6 +29,11 @@ export default function Home() {
   const [userName, setUserName] = useState("");
 
   useEffect(() => {
+    setData({
+      name: '',
+      avatar: 'https://avatars.githubusercontent.com/u/9919?s=200&v=4',
+      login: ''
+    })
     if (userName.length > 2) {
       apiGitHub.get(`/${userName}`)
         .then(({ data }) => {
@@ -38,12 +43,6 @@ export default function Home() {
             login: data.login
           })
         })
-        .catch((error) => setData({
-          name: '',
-          avatar: 'https://avatars.githubusercontent.com/u/9919?s=200&v=4',
-          login: ''
-        }))
-
     }
 
   }, [userName])
