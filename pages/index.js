@@ -1,6 +1,9 @@
 import { Box, Button, Text, TextField, Image } from "@skynexui/components";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import appConfig from "../config.json";
-import GlobalStyle from "../styles/GlobalStyle";
+import apiGitHub from "./api/apiGitHub"
+
 function Titulo(props) {
   const Tag = props.tag || "h1";
   return (
@@ -18,11 +21,36 @@ function Titulo(props) {
 }
 
 export default function Home() {
-  const username = "elton-souza";
+  const [data, setData] = useState({
+    name: '',
+    avatar: 'https://avatars.githubusercontent.com/u/9919?s=200&v=4',
+    login: ''
+  });
+  const [userName, setUserName] = useState("");
 
+  useEffect(() => {
+    if (userName.length > 2) {
+      apiGitHub.get(`/${userName}`)
+        .then(({ data }) => {
+          setData({
+            name: data.name,
+            avatar: data.avatar_url,
+            login: data.login
+          })
+        })
+        .catch((error) => setData({
+          name: '',
+          avatar: 'https://avatars.githubusercontent.com/u/9919?s=200&v=4',
+          login: ''
+        }))
+
+    }
+
+  }, [userName])
+
+  const router = useRouter();
   return (
     <>
-      <GlobalStyle />
       <Box
         styleSheet={{
           display: "flex",
@@ -57,6 +85,10 @@ export default function Home() {
           {/* Formulário */}
           <Box
             as="form"
+            onSubmit={event => {
+              event.preventDefault();
+              router.push('/chat')
+            }}
             styleSheet={{
               display: "flex",
               flexDirection: "column",
@@ -75,7 +107,7 @@ export default function Home() {
                 color: appConfig.theme.colors.neutrals[300],
               }}
             >
-              {username}
+              {data.name}
             </Text>
 
             <TextField
@@ -88,6 +120,8 @@ export default function Home() {
                   backgroundColor: appConfig.theme.colors.neutrals[800],
                 },
               }}
+              value={userName}
+              onChange={event => setUserName(event.target.value)}
             />
             <Button
               type="submit"
@@ -124,7 +158,8 @@ export default function Home() {
                 borderRadius: "50%",
                 marginBottom: "16px",
               }}
-              src={`https://github.com/${username}.png`}
+              src={data.avatar}
+              alt="Avatar"
             />
             <Text
               variant="body4"
@@ -135,7 +170,7 @@ export default function Home() {
                 borderRadius: "1000px",
               }}
             >
-              {username}
+              {userName}
             </Text>
           </Box>
           {/* Photo Area */}
